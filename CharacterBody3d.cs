@@ -3,19 +3,21 @@ using System;
 
 public partial class CharacterBody3d : CharacterBody3D
 {
-	int movementType = 1;
-	public float Speed = 5.0f;
-    public float MaxSpeed = 10.0f;
+	int movementType = 0;
 
-    public const float JumpVelocity = 4.5f;
+	public float Speed = 10.0f;
+    public float MaxSpeed = 10.0f;
+    public float gravityMutiplier = 2.0f;
+
+    public const float JumpVelocity = 9.0f;
 
     public float Acceleration = 50.0f;
     public float Deceleration = 7.0f;
     float inputPressedTime = 0;
-
     bool canJump = true;
     float coyoteTime = 0;
     bool shouldDoCoyoteTime = true;
+    float coyoteTimeThreshold = 0.3f;
 
     bool isCrouched = false;
 
@@ -59,6 +61,8 @@ public partial class CharacterBody3d : CharacterBody3D
 
     private void PerformJump()
     {
+        canJump = false;
+        shouldDoCoyoteTime = false;
         mesh.Scale = standingScale;
         jumpChargeTime = 0;
         isWaitingToJump = false;
@@ -102,28 +106,34 @@ public partial class CharacterBody3d : CharacterBody3D
         if (!IsOnFloor())
         {
             coyoteTime += (float)delta;
-            if (coyoteTime > 1.0f)
+            if (coyoteTime > coyoteTimeThreshold)
             {
                 shouldDoCoyoteTime = false;
+            }
+
+            if (velocity.Y > -0.1f)
+            {
+                velocity.Y += GetGravity().Y * gravityMutiplier * (float)delta;
             }
 
             if (!shouldDoCoyoteTime)
             {
                 canJump = false;
-                if (velocity.Y > -0.1f)
-                {
-                    velocity.Y += GetGravity().Y * (float)delta;
-                }
+                
                 if (!Input.IsActionPressed("ui_accept"))
                 {
-                    velocity.Y += GetGravity().Y * (float)delta;
+                    velocity.Y += GetGravity().Y* gravityMutiplier * (float)delta;
                 }
             }
         }
         else 
         {
             coyoteTime = 0;
-            canJump = true;
+            if (velocity.Y <= 0.01f)
+            {
+                canJump = true;
+
+            }
             if (!isCrouched)
             {
                 shouldDoCoyoteTime = true;
@@ -188,8 +198,6 @@ public partial class CharacterBody3d : CharacterBody3D
 			{
 				velocity.X += direction.X * Acceleration * (float)delta;
 				velocity.Z += direction.Z * Acceleration * (float)delta;
-
-                // mesh.LookAt(mesh.GlobalPosition + direction, Vector3.Up);
             }
             // Rapid Deceleration
             else
@@ -210,8 +218,8 @@ public partial class CharacterBody3d : CharacterBody3D
             {
                 GD.Print(direction);
                 inputPressedTime += (float)delta;
-				velocity.X += direction.X * (Acceleration * ((float)delta * (float)delta * (3.0f - 2.0f * (float)delta)));
-                velocity.Z += direction.Z * (Acceleration * ((float)delta * (float)delta * (3.0f - 2.0f * (float)delta)));
+				velocity.X += direction.X * (Acceleration * ((float)delta * (float)delta * (3.0f - 2.0f * (float)delta))) * inputPressedTime;
+                velocity.Z += direction.Z * (Acceleration * ((float)delta * (float)delta * (3.0f - 2.0f * (float)delta))) * inputPressedTime;
                 // mesh.LookAt(mesh.GlobalPosition + direction, Vector3.Up);
             }
             // Instant deceleration to zero
@@ -228,8 +236,6 @@ public partial class CharacterBody3d : CharacterBody3D
 
         }
  
-        GD.Print(velocity);
-        // Maybe the switch direction bug is here // TODO LATER
         if ((velocity.X != 0 || velocity.Z != 0) && IsOnFloor()) { mesh.LookAt(mesh.GlobalPosition + new Vector3(velocity.X,0.0f,velocity.Z), Vector3.Up); }
 
         Velocity = velocity;
