@@ -27,3 +27,19 @@ mesh = SubResource("BoxMesh_4flbx")
 
 [node name="Camera3D" type="Camera3D" parent="CharacterBody3D"]
 transform = Transform3D(1, 0, 0, 0, 0.9541463, 0.29934058, 0, -0.29934058, 0.9541463, 0, 7.614336, 12.78864)
+
+[node name="Label" type="Label" parent="CharacterBody3D/Camera3D"]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Use Key 1 to go to the instant velocity mode
+Use key 2 to switch to the accelerating velocity mode
+Use key 3 to switch to Ease-in ease-out accelerating velocity mode
+Control the player with the arrow keys
+Space for jump, hold space to Glide
+Control to toggle Crouch
+
+
+
+
+Reach the end to find the joke"
+vertical_alignment = 1

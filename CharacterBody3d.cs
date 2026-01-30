@@ -7,9 +7,9 @@ public partial class CharacterBody3d : CharacterBody3D
 
 	public float Speed = 10.0f;
     public float MaxSpeed = 10.0f;
-    public float gravityMutiplier = 2.0f;
+    public float gravityMutiplier = 4.0f;
 
-    public const float JumpVelocity = 9.0f;
+    public const float JumpVelocity = 15.0f;
 
     public float Acceleration = 75.0f;
     public float Deceleration = 7.0f;
@@ -23,6 +23,7 @@ public partial class CharacterBody3d : CharacterBody3D
 
     float jumpChargeTime = 0;
     bool isWaitingToJump = false;
+    float jumpThreshold = 0.25f;
 
 
     [Export]
@@ -44,14 +45,17 @@ public partial class CharacterBody3d : CharacterBody3D
 		if (Input.IsActionPressed("switch_input_mode_1", true))
 		{
             movementType = 0;
+            jumpThreshold = 0.7f;
         }
         if (Input.IsActionPressed("switch_input_mode_2", true))
         {
             movementType = 1;
+            jumpThreshold = 0.25f;
         }
         if (Input.IsActionPressed("switch_input_mode_3", true))
         {
             movementType = 2;
+            jumpThreshold = 0.5f;
         }
     }
 
@@ -197,7 +201,6 @@ public partial class CharacterBody3d : CharacterBody3D
 			{
                 velocity += direction * Acceleration * (float)delta;
 
-                GD.Print(velocity);
             }
             // Rapid Deceleration
             else

@@ -1,7 +1,8 @@
-[gd_scene load_steps=13 format=3 uid="uid://crodkpir3gyqv"]
+[gd_scene load_steps=14 format=3 uid="uid://crodkpir3gyqv"]
 
 [ext_resource type="Material" uid="uid://cgs1tpg6e6w1q" path="res://materials/gridMat.tres" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://d1x7emtwkix4u" path="res://player.tscn" id="1_ig7tw"]
+[ext_resource type="Texture2D" uid="uid://cusivfqnwx6jv" path="res://materials/25a.png" id="3_h2yge"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_7dm0k"]
 
@@ -431,3 +432,7 @@ shape = SubResource("ConcavePolygonShape3D_h2yge")
 
 [node name="Player" parent="." instance=ExtResource("1_ig7tw")]
 transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, -15.873627, 1.0935125, 0)
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform3D(12.346061, 0, 5.4115763, 0, 13.48, 0, -5.4115763, 0, 12.346061, -85.22523, -168.46082, -54.832115)
+texture = ExtResource("3_h2yge")
