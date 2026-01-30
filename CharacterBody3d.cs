@@ -11,7 +11,7 @@ public partial class CharacterBody3d : CharacterBody3D
 
     public const float JumpVelocity = 9.0f;
 
-    public float Acceleration = 50.0f;
+    public float Acceleration = 75.0f;
     public float Deceleration = 7.0f;
     float inputPressedTime = 0;
     bool canJump = true;
@@ -34,13 +34,9 @@ public partial class CharacterBody3d : CharacterBody3D
     private static Vector3 standingScale = new Vector3(1.0f, 1.0f, 1.0f);
     private static Vector3 crouchedScale = new Vector3(1.0f, 0.7f, 1.0f);
 
-    public override void _Ready()
-    {
-        base._Ready();
 
-        
-    }
 
+    // Switch Acceleration logic
     public override void _Process(double delta)
     {
         base._Process(delta);
@@ -59,6 +55,7 @@ public partial class CharacterBody3d : CharacterBody3D
         }
     }
 
+    // take care of the jump logic
     private void PerformJump()
     {
         canJump = false;
@@ -74,26 +71,26 @@ public partial class CharacterBody3d : CharacterBody3D
 
     public override void _PhysicsProcess(double delta)
 	{
-		
+		// this is take from the in built velocity, modified and reassigned at the end of the function
 		Vector3 velocity = Velocity;
 
+        // Crouch logic contained in the input function
         if (Input.IsActionJustPressed("crouch"))
         {
+            // toggle crouch
             isCrouched = (isCrouched) ? false : true;
 
             if (!isCrouched) 
             {
-                Acceleration = 4.0f;
-                Deceleration = 7.0f;
-                Speed = 5.0f;
-                MaxSpeed = 15.0f;
+                Acceleration = 75.0f;
+                Speed = 10.0f;
+                MaxSpeed = 10.0f;
                 mesh.Scale = standingScale;
                 ((CapsuleShape3D)collisionObject.Shape).Height = 2.0f;
             }
             if (isCrouched)
             {
                 Acceleration = 2.0f;
-                Deceleration = 7.0f;
                 Speed = 3.0f;
                 MaxSpeed = 7.0f;
                 shouldDoCoyoteTime = false;
@@ -102,7 +99,7 @@ public partial class CharacterBody3d : CharacterBody3D
             }
         }
 
-        // Add the gravity.
+        // Add the gravity. // coyote time is also contained here
         if (!IsOnFloor())
         {
             coyoteTime += (float)delta;
@@ -150,6 +147,7 @@ public partial class CharacterBody3d : CharacterBody3D
             ((CapsuleShape3D)collisionObject.Shape).Height = 1.4f;
         }
 
+        // Input buffering for jump to avoid spam 
         if (isWaitingToJump)
         {
             jumpChargeTime += (float)delta;
@@ -171,6 +169,7 @@ public partial class CharacterBody3d : CharacterBody3D
 
         Vector3 direction = (Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();
 
+        // Basic input mode, Instant feedback with no fancy effects
         if (movementType == 0)
 		{
 			// Instant Acceleration to speed
@@ -190,27 +189,26 @@ public partial class CharacterBody3d : CharacterBody3D
 
 		}
 
-
+        // Acceleration and deceleration on input
 		if (movementType == 1)
 		{
 			// Smooth Acceleration
 			if (direction != Vector3.Zero)
 			{
-				velocity.X += direction.X * Acceleration * (float)delta;
-				velocity.Z += direction.Z * Acceleration * (float)delta;
+                velocity += direction * Acceleration * (float)delta;
+
+                GD.Print(velocity);
             }
             // Rapid Deceleration
             else
             {
-                velocity.X -= velocity.X * Deceleration * (float)delta;
-                velocity.Z -= velocity.Z * Deceleration * (float)delta;
+                velocity -= velocity * Deceleration * (float)delta;
             }
             velocity.X = Math.Clamp(velocity.X, -MaxSpeed, MaxSpeed);
-            velocity.Z = Math.Clamp(velocity.Z, -MaxSpeed, MaxSpeed);
-
+            velocity.Z = Math.Clamp(velocity.Z, -MaxSpeed, MaxSpeed );
         }
 
-
+        // eas in eas out 
         if (movementType == 2)
         {
             // Ease-in ease-out acceleration
